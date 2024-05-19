@@ -13,8 +13,14 @@ TreeScribe is a simple, lightweight, and minimal tool that visually maps out you
 
 First, ensure you have [Go](https://golang.org/doc/install) installed on your system. Then, compile TreeScribe from the source code:
 
-```sh
+```
 go build -o TreeScribe main.go
+```
+
+Move the binary to a directory in your PATH. On Linux and macOS, a common directory for user-installed binaries is /usr/local/bin.
+
+```
+sudo mv TreeScribe /usr/local/bin/
 ```
 
 ## Usage
@@ -25,8 +31,9 @@ TreeScribe provides a clear view of your directory structure through the command
 ./TreeScribe [options]
 
 Options:
-  -h, --help       Show help
-  -p, --path       Path to the directory
+  -h, --help             Show help
+  -p, --path             Path to the directory
+  -i, --include-hidden   Include hidden folders
 ```
 
 ## Examples
@@ -55,10 +62,21 @@ or
 ./TreeScribe --path /path/to/directory
 ```
 
+Include hidden folders (e.g., .git):
+
+```
+./TreeScribe -p /path/to/directory -i
+```
+
+or
+
+```
+./TreeScribe --path /path/to/directory --include-hidden
+```
+
 ## Output
 
-For a given directory structure TreeScribe will output:
-
+TreeScribe will output:
 
 ```
 myApp/
@@ -69,4 +87,46 @@ myApp/
     │   │   └── derp.html
     │   └── css/
     │       └── styles.css
+```
+
+## Adding an Alias
+
+To make it easier to run TreeScribe, you can create an alias ts in your shell configuration file.
+
+### On macOS and Linux
+
+Open your zsh configuration file (.zshrc) or bash configuration file (.bashrc or .bash_profile):
+
+```
+nano ~/.zshrc
+```
+
+```
+nano ~/.bashrc
+```
+
+Add the alias at the end of the file:
+
+```
+alias ts='TreeScribe'
+```
+
+Save the file and exit the editor.
+
+Reload your shell configuration to apply the changes:
+
+```
+source ~/.zshrc
+```
+
+or
+
+```
+source ~/.bashrc
+```
+
+Verify the alias by running:
+
+```
+ts -p /path/to/directory
 ```
