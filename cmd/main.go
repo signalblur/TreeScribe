@@ -8,15 +8,18 @@ import (
 	"strings"
 )
 
-const version = "1.0.0"
+const version = "1.1.0"
+
+var defaultIgnoredDirs = []string{".git", "node_modules", "venv", "env"}
 
 func main() {
 	help := flag.Bool("h", false, "Show help")
 	helpLong := flag.Bool("help", false, "Show help")
-	path := flag.String("p", "", "Path to the directory")
-	pathLong := flag.String("path", "", "Path to the directory")
+	path := flag.String("p", ".", "Path to the directory (default is current directory)")
+	pathLong := flag.String("path", ".", "Path to the directory (default is current directory)")
 	includeHidden := flag.Bool("i", false, "Include hidden folders")
 	includeHiddenLong := flag.Bool("include-hidden", false, "Include hidden folders")
+	ignore := flag.String("ignore", "", "Comma-separated list of additional folders to ignore")
 
 	flag.Parse()
 
@@ -26,19 +29,15 @@ func main() {
 	}
 
 	dirPath := *path
-	if *pathLong != "" {
+	if *pathLong != "." {
 		dirPath = *pathLong
-	}
-
-	if dirPath == "" {
-		fmt.Println("Error: Path is required")
-		showHelp()
-		return
 	}
 
 	includeHiddenFolders := *includeHidden || *includeHiddenLong
 
-	err := printDirStructure(dirPath, includeHiddenFolders)
+	ignoredDirs := append(defaultIgnoredDirs, strings.Split(*ignore, ",")...)
+
+	err := printDirStructure(dirPath, includeHiddenFolders, ignoredDirs)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
@@ -48,11 +47,12 @@ func showHelp() {
 	fmt.Printf("Usage: TreeScribe [options]\n")
 	fmt.Printf("Options:\n")
 	fmt.Printf("  -h, --help             Show help\n")
-	fmt.Printf("  -p, --path             Path to the directory\n")
+	fmt.Printf("  -p, --path             Path to the directory (default is current directory)\n")
 	fmt.Printf("  -i, --include-hidden   Include hidden folders\n")
+	fmt.Printf("  --ignore               Comma-separated list of additional folders to ignore\n")
 }
 
-func printDirStructure(root string, includeHidden bool) error {
+func printDirStructure(root string, includeHidden bool, ignoredDirs []string) error {
 	fileInfo, err := os.Stat(root)
 	if err != nil {
 		return err
@@ -80,16 +80,22 @@ func printDirStructure(root string, includeHidden bool) error {
 			return nil
 		}
 
+		for _, ignoredDir := range ignoredDirs {
+			if info.IsDir() && info.Name() == ignoredDir {
+				return filepath.SkipDir
+			}
+		}
+
 		parts := strings.Split(relativePath, string(filepath.Separator))
-		for i := 1; i < len(parts); i++ {
+		for i := 0; i < len(parts); i++ {
 			if i == len(parts)-1 {
 				if info.IsDir() {
-					fmt.Print("├── ")
+					fmt.Print("└── ")
 				} else {
 					fmt.Print("└── ")
 				}
 			} else {
-				fmt.Print("│   ")
+				fmt.Print("    ")
 			}
 		}
 
