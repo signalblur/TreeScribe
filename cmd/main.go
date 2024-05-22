@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const version = "1.1.0"
+const version = "1.2.0"
 
 var defaultIgnoredDirs = []string{".git", "node_modules", "venv", "env"}
 
@@ -62,7 +62,16 @@ func printDirStructure(root string, includeHidden bool, ignoredDirs []string) er
 		return fmt.Errorf("%s is not a directory", root)
 	}
 
-	fmt.Println(fileInfo.Name() + "/")
+	rootName := filepath.Base(root)
+	if rootName == "." {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		rootName = filepath.Base(cwd)
+	}
+
+	fmt.Println(rootName + "/")
 	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
