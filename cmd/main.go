@@ -11,7 +11,7 @@ import (
 
 const version = "0.3.0"
 
-var defaultIgnoredDirs = []string{".git", "node_modules", "venv", "env", "package-lock.json"}
+var defaultIgnoredDirs = []string{".git", "node_modules", "venv", "env", "package-lock.json", "bin", "lib", "include", "bin64", "include64", "lib64", "7zz"}
 
 func main() {
 	help := flag.Bool("h", false, "Show help")
